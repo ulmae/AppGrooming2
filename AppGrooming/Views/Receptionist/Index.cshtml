@@ -1,0 +1,202 @@
+@model AppGrooming.Models.ReceptionistDashboardModel
+@{
+    ViewBag.Title = "Recepcionistas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="receptionist-dashboard">
+    <div class="search-section mb-4">
+        <h3>Recepcionistas</h3>
+        <div class="action-buttons">
+            <button type="button" class="btn btn-primary btn-add-order" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+                <i class="fas fa-plus"></i> Agregar Nueva Orden
+            </button>
+        </div>
+    </div>
+
+    <div class="stats-section mb-4">
+        <h4 class="stats-title">Caninos ingresados</h4>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card pending">
+                    <div class="stat-number">@Model.PendingOrders</div>
+                    <div class="stat-label">Caninos para baño</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card progress">
+                    <div class="stat-number">@Model.InProgressOrders</div>
+                    <div class="stat-label">Caninos para corte</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card ready">
+                    <div class="stat-number">@Model.ReadyOrders</div>
+                    <div class="stat-label">Caninos para baño y corte</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="orders-section">
+        <h4 class="section-title">LISTA DE CANINOS</h4>
+        <div class="table-responsive">
+            <table class="table orders-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Dueño</th>
+                        <th>Servicios</th>
+                        <th>Teléfono</th>
+                        <th>Horario estimado</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.WorkOrders)
+                    {
+                        <tr>
+                            <td><strong>@order.PetName</strong></td>
+                            <td>@order.CustomerName</td>
+                            <td>@order.Services</td>
+                            <td>@order.PhoneNumber</td>
+                            <td>
+                                @if (order.Status == "completed" && order.ReadyAt.HasValue)
+                                {
+                                    @order.ReadyAt.Value.ToString("h:mmtt")
+                                }
+                                else if (order.EstimatedReady.HasValue)
+                                {
+                                    @($"{order.EstimatedReady.Value.ToString("h:mmtt")} - {order.EstimatedReady.Value.AddHours(1).ToString("h:mmtt")}")
+                                }
+                            </td>
+                            <td>
+                                <span class="status-badge @order.StatusClass">@order.StatusDisplay</span>
+                            </td>
+                            <td>
+                                @if (order.Status != "completed" && order.Status != "cancelled")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-cancel-order"
+                                            data-order-id="@order.Id" data-pet-name="@order.PetName">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar Orden -->
+<div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addOrderModalLabel">Agregar Nueva Orden de Grooming</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addOrderForm" action="@Url.Action("AddOrder", "Receptionist")" method="post">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customerId" class="form-label">Cliente</label>
+                                <select id="customerId" name="CustomerId" class="form-select" required>
+                                    <option value="">Seleccionar cliente...</option>
+                                    @foreach (var customer in Model.Customers)
+                                    {
+                                        <option value="@customer.Id">@customer.FullName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="petId" class="form-label">Mascota</label>
+                                <select id="petId" name="PetId" class="form-select" required disabled>
+                                    <option value="">Primero selecciona un cliente...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="assignedToId" class="form-label">Asignar a</label>
+                                <select id="assignedToId" name="AssignedToId" class="form-select" required>
+                                    <option value="">Seleccionar groomer...</option>
+                                    @foreach (var groomer in Model.Groomers)
+                                    {
+                                        <option value="@groomer.Id">@groomer.FullName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="estimatedReady" class="form-label">Hora estimada de finalización</label>
+                                <input type="datetime-local" id="estimatedReady" name="EstimatedReady" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Servicios</label>
+                        <div class="services-checkboxes">
+                            @foreach (var service in Model.Services)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ServiceIds" value="@service.Id" id="service_@service.Id">
+                                    <label class="form-check-label" for="service_@service.Id">
+                                        @service.Name (@service.DurationMin min)
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">Comentarios (opcional)</label>
+                        <textarea id="comments" name="Comments" class="form-control" rows="3" placeholder="Comentarios especiales para la orden..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Orden</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Cancelar -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Confirmar Cancelación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea cancelar la orden para <strong id="cancelPetName"></strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener orden</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">Sí, cancelar orden</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="~/Scripts/receptionist.js"></script>
+}

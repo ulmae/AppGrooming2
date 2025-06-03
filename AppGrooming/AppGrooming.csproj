@@ -88,19 +88,41 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\dashboard.css" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\receptionist.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Content Include="Content\login.css" />
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\GroomingController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\ReceptionistController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AddOrderModel.cs" />
+    <Compile Include="Models\CustomerModel.cs" />
+    <Compile Include="Models\LoginModel.cs" />
+    <Compile Include="Models\PetModel.cs" />
+    <Compile Include="Models\ReceptionistDashboardModel.cs" />
+    <Compile Include="Models\ServiceModel.cs" />
+    <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Models\WorkOrderViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
     <None Include="packages.config" />
+    <Content Include="Views\Login\Index.cshtml" />
+    <Content Include="Views\Receptionist\Index.cshtml" />
+    <Content Include="Views\Groomer\Index.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -110,8 +132,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

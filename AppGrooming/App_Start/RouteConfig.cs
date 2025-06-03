@@ -13,10 +13,11 @@ namespace AppGrooming
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            // Ruta por defecto para Login
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "Login", action = "Index", id = UrlParameter.Optional }
             );
         }
     }

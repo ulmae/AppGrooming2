@@ -7,7 +7,7 @@ using System.Web.Routing;
 
 namespace AppGrooming
 {
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         protected void Application_Start()
         {
